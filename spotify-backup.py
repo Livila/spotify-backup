@@ -235,14 +235,20 @@ def main():
 				for playlist in data['playlists']:
 					f.write(playlist['name'] + "\n")
 					for track in playlist['tracks']:
-						f.write('{name}\t{artists}\t{album}\t{uri}\n'.format(
-							uri=track['track']['uri'],
-							name=track['track']['name'],
-							artists=', '.join([artist['name'] for artist in track['track']['artists']]),
-							album=track['track']['album']['name']
-						))
+						try:
+							f.write('{name}\t{artists}\t{album}\t{uri}\n'.format(
+								uri=track['track']['uri'],
+								name=track['track']['name'],
+								artists=', '.join([artist['name'] for artist in track['track']['artists']]),
+								album=track['track']['album']['name']
+							))
+						except TypeError as err:
+							print("""
+An exception occured when writing txt-format to a tab-separated file.
+Private, empty or removed Spotify track. Error message: {}.
+Skipping {}""".format(err, track))
 					f.write('\n')
-			
+
 			# Markdown
 			elif args.format == 'md':
 				f.write("# Spotify Playlists Backup " + time.strftime("%d %b %Y") + "\n")
@@ -256,6 +262,7 @@ def main():
 							album=track["track"]["album"]["name"]
 						))
 					f.write("\n")
+
 		log('Wrote file: ' + args.file)
 
 if __name__ == '__main__':
